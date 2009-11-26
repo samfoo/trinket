@@ -1,6 +1,40 @@
 require 'test_helper'
 
 class UserTest < ActiveSupport::TestCase
+  test "can create" do
+    User.create!(:email => "sam@ifdown.net", 
+                 :first_name => "Sam",
+                 :last_name => "Gibson")
+
+    u = User.find_by_email("sam@ifdown.net")
+
+    assert_not_nil(u)
+  end
+
+  test "must have first name" do
+    assert_raises(ActiveRecord::RecordInvalid) do
+      User.create!(:email => "sam@ifdown.net", :last_name => "Gibson")
+    end
+  end
+
+  test "must have last name" do
+    assert_raises(ActiveRecord::RecordInvalid) do
+      User.create!(:email => "sam@ifdown.net", :first_name => "Sam")
+    end
+  end
+
+  test "unique email" do
+    User.create!(:email => "sam@ifdown.net", 
+                 :first_name => "Sam",
+                 :last_name => "Gibson")
+
+    assert_raises(ActiveRecord::RecordInvalid) do
+      User.create!(:email => "sam@ifdown.net", 
+                   :first_name => "Sam",
+                   :last_name => "Gibson")
+    end
+  end
+
   test "has acheived negative" do
     assert !users(:sarah).has_acheived?(:elected_president)
   end

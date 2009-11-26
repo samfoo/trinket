@@ -1,5 +1,7 @@
 class User < ActiveRecord::Base
   has_and_belongs_to_many :badges
+  validates_uniqueness_of :email
+  validates_presence_of :first_name, :last_name
 
   # Check to see if a user has already acheived one or more of a particular 
   # badge with some constraints.
