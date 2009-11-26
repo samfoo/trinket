@@ -1,10 +1,12 @@
-# TODO: Determine what the best way to pass in the current user is.
 module Trinket
   module Badges
-    class ConditionError < RuntimeError
+    class ShouldNotBeAwardedError < RuntimeError
     end
 
-    class Definition 
+    module Rules 
+    end
+
+    class Context 
       attr_accessor :user
 
       def initialize(user)
@@ -13,49 +15,51 @@ module Trinket
 
       def must_have_acheived(badge, options={})
         if !user.has_acheived?(badge, options)
-          raise ConditionError.new("The #{badge} => #{options.inspect} badge hasn't been acheived.")
+          raise ShouldNotBeAwardedError.new("The #{badge} => #{options.inspect} badge hasn't been acheived.")
         end
       end
 
       def must_not_have_acheived(badge, options={})
         if user.has_acheived(badge, options)
-          raise ConditionError.new("The #{badge} => #{options.inspect} badge has already been acheived.")
+          raise ShouldNotBeAwardedError.new("The #{badge} => #{options.inspect} badge has already been acheived.")
         end
       end
     end
 
-    def self.run(user, name)
-      class_name = name.to_s.camelize
+    # Award a user a badge if they're qualified. The badge definition criteria
+    # must be satisfied for the user for them to be qualified.
+    def self.award_if_qualified(user, badge)
+      class_name = badge.to_s.camelize
       begin
-        definition = Trinket::Badges.const_get(class_name)
+        definition = Rules.const_get(class_name)
       rescue NameError
-        raise "#{name} badge is not defined."
+        raise "#{badge} badge is not defined."
       end
 
-      # TODO: Log a warning if user is nil at least.
+      raise ArgumentError.new("You must provide a user to check if a badge should be awarded") if user.nil?
 
       # Run the definition and see if this badge should me awarded.
-      definition.new(user).check_definition()
+      definition.new(user).check_should_be_awarded()
 
       # If there were no condition errors checking the definition it means that
       # this user has been awarded this badge.
-      user.badges << Badge.find_by_name(name) unless user.nil?
-    rescue ConditionError => e
+      user.badges << Badge.find_by_name(badge.to_s) unless user.nil?
+    rescue ShouldNotBeAwardedError => e
       # If there was a condition error, the user has not met the criteria to be
       # awarded this badge.
     end
 
     def self.badge(name, &definition)
       class_name = name.to_s.camelize
-      raise "#{name} badge is already defined." if Trinket::Badges.const_defined?(class_name)
-      klass = Class.new(Definition)
+      raise "#{name} badge is already defined." if Rules.const_defined?(class_name)
+      klass = Class.new(Context)
 
       # TODO: Move this into a submodule? Move reserved methods to a submodule
       klass.class_eval do
-        define_method("check_definition", &definition)
+        define_method("check_should_be_awarded", &definition)
       end
 
-      Trinket::Badges.const_set(class_name, klass)
+      Rules.const_set(class_name, klass)
     end
 
   end
