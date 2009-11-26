@@ -1,0 +1,9 @@
+winnar_is_you:
+    name: winnar_is_you
+    display_name: Winnar Is You
+    description: You managed to win an election of any kind. 
+
+elected_president:
+    name: elected_president
+    display_name: Elected President
+    description: You managed to trick the sheeple to electing you to the highest office in the land.
