@@ -28,22 +28,33 @@ class User < ActiveRecord::Base
     return acheived >= threshold
   end
 
+  # Check to see if a user has performed some criteria of events.
+  #
+  # Options:
+  # * <tt>within</tt> - A time (e.g. "24.hours" or "15.minutes") span within which the event must have been earned within from the time of querying to count.
+  # * <tt>times</tt> - The number of times the event must have occurred to count. If the badge has been acheived more times than this, it still counts.
+  # * <tt>value</tt> - The value of the event must match to count. 
+  #
+  # Examples:
+  # <tt>has_done? :status # The user has changed the status of an issue</tt>
+  # <tt>has_done? :status, :value => "resolved" # The user has changed the status of an issue to be "resolved"</tt>
   def has_done?(event, options={})
     sql = []
     values = []
     if options.has_key?(:within)
-      sql += "events.type = ? and events.created_at >= ?"
-      values += [event_type.to_s, options[:within].ago]
+      sql << "events.name = ? and events.created_at >= ?"
+      values += [event.to_s, options[:within].ago]
     else
-      sql += "events.type = ?"
-      values += event_type.to_s
+      sql << "events.name = ?"
+      values << event.to_s
     end
 
     if options.has_key?(:value)
-      sql += "events.value = ?"
-      values += options[:value]
+      sql << "events.value = ?"
+      values << options[:value]
     end
 
+    conditions = [sql.join(" and ")] + values
     acheived = self.events.count(:conditions => conditions)
     threshold = options[:times] || 1
 

@@ -7,3 +7,8 @@ elected_president:
     name: elected_president
     display_name: Elected President
     description: You managed to trick the sheeple to electing you to the highest office in the land.
+
+resolvinator:
+    name: resolvinator
+    display_name: Resolvinator
+    description: You managed to resolve an issue, give yourself a high-five.
