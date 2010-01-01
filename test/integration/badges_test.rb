@@ -37,4 +37,19 @@ class BadgesTest < ActiveSupport::TestCase
     assert Badge.find_by_name("winnar_is_you").users.include?(user)
     assert user.badges.size == 2
   end
+
+  test "can only be awarded once" do
+    module Trinket::Badges
+      badge :winnar_is_you do
+        is_one_time_only
+      end
+    end
+
+    user = users(:sarah)
+    user.badges << Badge.find_by_name("winnar_is_you")
+
+    Trinket::Badges.award_if_qualified(user, :winnar_is_you)
+    assert Badge.find_by_name("winnar_is_you").users.include?(user)
+    assert user.badges.size == 1
+  end
 end

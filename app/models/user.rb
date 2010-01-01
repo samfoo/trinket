@@ -1,5 +1,6 @@
 class User < ActiveRecord::Base
   has_and_belongs_to_many :badges
+  has_many :events
   validates_uniqueness_of :email
   validates_presence_of :first_name, :last_name
 
@@ -22,6 +23,28 @@ class User < ActiveRecord::Base
     end
 
     acheived = self.badges.count(:conditions => conditions)
+    threshold = options[:times] || 1
+
+    return acheived >= threshold
+  end
+
+  def has_done?(event, options={})
+    sql = []
+    values = []
+    if options.has_key?(:within)
+      sql += "events.type = ? and events.created_at >= ?"
+      values += [event_type.to_s, options[:within].ago]
+    else
+      sql += "events.type = ?"
+      values += event_type.to_s
+    end
+
+    if options.has_key?(:value)
+      sql += "events.value = ?"
+      values += options[:value]
+    end
+
+    acheived = self.events.count(:conditions => conditions)
     threshold = options[:times] || 1
 
     return acheived >= threshold

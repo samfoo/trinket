@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20091126015129) do
+ActiveRecord::Schema.define(:version => 20100101183852) do
 
   create_table "badges", :force => true do |t|
     t.string   "name"
@@ -19,11 +19,21 @@ ActiveRecord::Schema.define(:version => 20091126015129) do
     t.datetime "updated_at"
   end
 
+  add_index "badges", ["display_name"], :name => "display_name_unique", :unique => true
   add_index "badges", ["name"], :name => "name_unique", :unique => true
 
   create_table "badges_users", :id => false, :force => true do |t|
     t.integer  "user_id"
     t.integer  "badge_id"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  create_table "events", :id => false, :force => true do |t|
+    t.string   "name",       :null => false
+    t.string   "value"
+    t.string   "entity_id"
+    t.integer  "user_id",    :null => false
     t.datetime "created_at"
     t.datetime "updated_at"
   end
