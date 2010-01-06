@@ -3,6 +3,19 @@ require File.expand_path(File.dirname(__FILE__) + "/../config/environment")
 require 'test_help'
 
 class Test::Unit::TestCase
+  def self.teardown_badge_definitions
+    # Since we have transactional tests, we know teardown is always defined so
+    # no need to do any funky checking or anything here.
+    alias_method_chain(:teardown, :remove_badge_definitions)
+  end
+
+  def teardown_with_remove_badge_definitions
+    # Clear out all of the rules that were created after every test.
+    Trinket::Badges::Rules.constants.each do |rule|
+      Trinket::Badges::Rules.class_eval { remove_const(rule) }
+    end
+  end
+
   # Transactional fixtures accelerate your tests by wrapping each test method
   # in a transaction that's rolled back on completion.  This ensures that the
   # test database remains unchanged so your fixtures don't have to be reloaded

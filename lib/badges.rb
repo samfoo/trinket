@@ -38,6 +38,13 @@ module Trinket
       end
     end
 
+    # Award a user any badges that they've qualified for.
+    def self.award(user)
+      Rules.constants.each do |badge|
+        award_if_qualified(user, badge.underscore)
+      end
+    end
+
     # Award a user a badge if they're qualified. The badge definition criteria
     # must be satisfied for the user for them to be qualified.
     def self.award_if_qualified(user, badge)
@@ -56,7 +63,7 @@ module Trinket
 
       # If there were no condition errors checking the definition it means that
       # this user has been awarded this badge.
-      user.badges << Badge.find_by_name(badge) unless user.nil?
+      user.badges << Badge.find_by_name(badge) 
     rescue ShouldNotBeAwardedError => e
       # If there was a condition error, the user has not met the criteria to be
       # awarded this badge.

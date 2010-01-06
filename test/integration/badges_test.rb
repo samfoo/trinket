@@ -2,12 +2,7 @@ require 'test_helper'
 require 'lib/badges'
 
 class BadgesTest < ActiveSupport::TestCase
-  def teardown
-    # Clear out all of the rules that were created after every test.
-    Trinket::Badges::Rules.constants.each do |rule|
-      Trinket::Badges::Rules.class_eval { remove_const(rule) }
-    end
-  end
+  teardown_badge_definitions
 
   test "hasn't acheived must have acheived constraint" do
     module Trinket::Badges

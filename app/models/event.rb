@@ -4,4 +4,8 @@ class Event < ActiveRecord::Base
   validates_inclusion_of :name, 
     :in => %w(create status priority), 
     :message => "Unknown event name '{{value}}'"
+
+  def email=(email)
+    self.user = User.find_by_email(email)
+  end
 end

@@ -19,4 +19,11 @@ class EventTest < ActiveSupport::TestCase
       Event.create!(:name => "status")
     end
   end
+
+  test "email is an acceptable substitute for user" do
+    e = Event.create!(:name => "status",
+                      :email => users(:sarah).email)
+    assert_not_nil(e)
+    assert e.user_id == users(:sarah).id
+  end
 end
