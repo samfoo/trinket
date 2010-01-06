@@ -67,7 +67,6 @@ module Trinket
       raise "#{name} badge is already defined." if Rules.const_defined?(class_name)
       klass = Class.new(Context)
 
-      # TODO: Move this into a submodule? Move reserved methods to a submodule
       klass.class_eval do
         define_method("check_should_be_awarded", &definition)
       end

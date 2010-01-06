@@ -67,4 +67,33 @@ class BadgesTest < ActiveSupport::TestCase
     assert Badge.find_by_name("resolvinator").users.include?(user)
     assert user.badges.size == 1
   end
+
+  test "event must have occurred value incorrect" do
+    module Trinket::Badges
+      badge :resolvinator do
+        event_must_have_occurred :status, :value => "resolved"
+      end
+    end
+
+    user = users(:sarah)
+    Event.create!(:user => user, :name => "status")
+
+    Trinket::Badges.award_if_qualified(user, :resolvinator)
+    assert !Badge.find_by_name("resolvinator").users.include?(user)
+    assert user.badges.size == 0
+  end
+
+  test "event must have occurred, but hasn't" do
+    module Trinket::Badges
+      badge :resolvinator do
+        event_must_have_occurred :status, :value => "resolved"
+      end
+    end
+
+    user = users(:sarah)
+
+    Trinket::Badges.award_if_qualified(user, :resolvinator)
+    assert !Badge.find_by_name("resolvinator").users.include?(user)
+    assert user.badges.size == 0
+  end
 end
