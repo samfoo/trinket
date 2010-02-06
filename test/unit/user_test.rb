@@ -3,6 +3,8 @@ require 'test_helper'
 class UserTest < ActiveSupport::TestCase
   test "can create" do
     User.create!(:email => "sam@ifdown.net", 
+                 :password => "test",
+                 :password_confirmation => "test",
                  :first_name => "Sam",
                  :last_name => "Gibson")
 
@@ -25,11 +27,15 @@ class UserTest < ActiveSupport::TestCase
 
   test "unique email" do
     User.create!(:email => "sam@ifdown.net", 
+                 :password => "test",
+                 :password_confirmation => "test",
                  :first_name => "Sam",
                  :last_name => "Gibson")
 
     assert_raises(ActiveRecord::RecordInvalid) do
       User.create!(:email => "sam@ifdown.net", 
+                   :password => "test",
+                   :password_confirmation => "test",
                    :first_name => "Sam",
                    :last_name => "Gibson")
     end

@@ -2,3 +2,4 @@ sarah:
   first_name: Sarah
   last_name: Palin
   email: sarah.palin@whitehouse.gov # Ha! Yeah right.
+  persistence_token: iamnotacrook

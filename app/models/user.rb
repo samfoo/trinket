@@ -1,4 +1,6 @@
 class User < ActiveRecord::Base
+  acts_as_authentic 
+
   has_and_belongs_to_many :badges
   has_many :events
   validates_uniqueness_of :email
