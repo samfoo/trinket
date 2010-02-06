@@ -2,7 +2,7 @@ ENV["RAILS_ENV"] = "test"
 require File.expand_path(File.dirname(__FILE__) + "/../config/environment")
 require 'test_help'
 
-class Test::Unit::TestCase
+class ActiveSupport::TestCase
   def self.teardown_badge_definitions
     # Since we have transactional tests, we know teardown is always defined so
     # no need to do any funky checking or anything here.
