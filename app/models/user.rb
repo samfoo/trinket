@@ -6,6 +6,10 @@ class User < ActiveRecord::Base
   validates_uniqueness_of :email
   validates_presence_of :first_name, :last_name
 
+  def full_name
+    first_name + " " + last_name
+  end
+
   # Check to see if a user has already acheived one or more of a particular 
   # badge with some constraints.
   #

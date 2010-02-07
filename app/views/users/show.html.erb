@@ -1,0 +1,33 @@
+<h1><%= @user.full_name %></h1>
+
+<% 
+  # TODO: Add a gloss image on top of this? 
+%>
+<div><%= 
+  image_tag(
+    gravatar_url(@user), 
+    :alt => @user.full_name, 
+    :title => @user.full_name,
+    :size => "80x80") %></div>
+
+<div class="badges">
+  <% if @user.badges.empty? %>
+    <p>This user has not been awarded any badges yet</p>
+  <% else %>
+    <% @user.badges.each do |badge| %>
+      <%
+        # TODO: Should probably be a styled ul 
+      %>
+      <div class="badge">
+        <%= link_to(
+          image_tag(badge.image_url, 
+                    :alt => badge.display_name, 
+                    :title => badge.display_name,
+                    :size => "50x50"),
+          :controller => "badges", :action => "show", :id => badge.id
+        ) 
+        %>
+      </div>
+    <% end %>
+  <% end %>
+</div>
