@@ -1,0 +1,11 @@
+<h1><%= @badge.display_name %></h1>
+
+<div class="badge-image">
+  <%= image_tag(@badge.image_url, 
+                :alt => @badge.display_name,
+                :title => @badge.display_name) %>
+</div>
+
+<div>
+  <p><%= @badge.requirements_in_words %></p>
+</div>

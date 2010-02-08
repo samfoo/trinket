@@ -1,4 +1,5 @@
-* Plain english documentation for badges based on the badges definition.
 * API design.
-* Figure out how authentication is going to work.
+  * Figure out how I want to seperate the web site from the API server.
+* Figure out how authentication is going to work for the API.
 * Write a readme.md file.
+* Write tests for the new documentation stuff.

@@ -1,5 +1,6 @@
 ActionController::Routing::Routes.draw do |map|
   map.resources :users
+  map.resources :badges
   map.resources :user_sessions
 
   # Install the default routes as the lowest priority.

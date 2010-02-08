@@ -6,9 +6,44 @@ module Trinket
     module Rules 
     end
 
+    class Documentation
+      def emit(requirement)
+        @requirements ||= []
+        @requirements << requirement
+      end
+
+      def to_s
+        @requirements.join(". ") + "."
+      end
+
+      def is_one_time_only
+        emit "Can only be awarded once"
+      end
+
+      def value(options)
+        options.has_key?(:value) ? "with the value #{options[:value]}" : ""
+      end
+
+      def times(options)
+        options.has_key?(:times) ? "#{options[:times]} times" : ""
+      end
+
+      def within(options)
+        # TODO: friendly format this time interval
+        options.has_key?(:within) ? "within the last #{options[:within]}" : ""
+      end
+
+      def event_must_have_occurred(event, options={})
+        emit "The user must have performed the #{event} event #{value(options)} #{times(options)} #{within(options)}".strip
+      end
+
+      def must_have_acheived(badge, options={})
+        emit "The user must have acheived the #{badge} badge #{times(options)} #{within(options)}".strip
+      end
+    end
+
     class Context 
-      attr_accessor :user
-      attr_accessor :name
+      attr_accessor :user, :name
 
       def initialize(name, user)
         self.name = name
@@ -72,13 +107,24 @@ module Trinket
     def self.badge(name, &definition)
       class_name = name.to_s.camelize
       raise "#{name} badge is already defined." if Rules.const_defined?(class_name)
-      klass = Class.new(Context)
 
-      klass.class_eval do
+      context_klass = Class.new(Context)
+      context_klass.class_eval do
+        @@requirements_class = Class.new(Documentation)
+        @@requirements_class.class_eval do
+          define_method("parse_requirements_in_words", &definition)
+        end
+
+        # Turn the badge definition into english for displaying to the user.
+        def self.requirements_in_words
+          d = @@requirements_class.new
+          d.parse_requirements_in_words
+          d.to_s
+        end
+
         define_method("check_should_be_awarded", &definition)
       end
-
-      Rules.const_set(class_name, klass)
+      Rules.const_set(class_name, context_klass)
     end
 
   end
