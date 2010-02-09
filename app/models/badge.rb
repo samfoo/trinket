@@ -8,7 +8,7 @@ class Badge < ActiveRecord::Base
   end
 
   def image_url
-    # TODO: Different sizes
+    # TODO: Different sizes? How is deployment going to work?
     APP_CONFIG["badge_images_url_root"] + name.underscore + ".jpg"
   end
 end

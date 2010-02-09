@@ -4,10 +4,10 @@ require 'lib/badges'
 class BadgesTest < ActiveSupport::TestCase
   teardown_badge_definitions
 
-  test "hasn't acheived must have acheived constraint" do
+  test "hasn't achieved must have achieved constraint" do
     module Trinket::Badges
       badge :winnar_is_you do
-        must_have_acheived :elected_president
+        must_have_achieved :elected_president
       end
     end
 
@@ -18,10 +18,10 @@ class BadgesTest < ActiveSupport::TestCase
     assert user.badges.size == 0
   end
 
-  test "has acheived must have acheived constraint" do
+  test "has achieved must have achieved constraint" do
     module Trinket::Badges
       badge :winnar_is_you do
-        must_have_acheived :elected_president
+        must_have_achieved :elected_president
       end
     end
 

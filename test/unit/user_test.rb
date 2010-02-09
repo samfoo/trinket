@@ -41,8 +41,8 @@ class UserTest < ActiveSupport::TestCase
     end
   end
 
-  test "has acheived negative" do
-    assert !users(:sarah).has_acheived?(:elected_president)
+  test "has achieved negative" do
+    assert !users(:sarah).has_achieved?(:elected_president)
   end
 
   test "the apocolypse" do
@@ -50,7 +50,7 @@ class UserTest < ActiveSupport::TestCase
     users(:sarah).reload
 
     assert users(:sarah).badges.size == 1
-    assert users(:sarah).has_acheived?(:elected_president)
+    assert users(:sarah).has_achieved?(:elected_president)
 
     # TODO: Panic.
   end
@@ -60,7 +60,7 @@ class UserTest < ActiveSupport::TestCase
     users(:sarah).reload
 
     assert users(:sarah).badges.size == 3
-    assert users(:sarah).has_acheived?(:elected_president, :times => 3)
+    assert users(:sarah).has_achieved?(:elected_president, :times => 3)
   end
 
   test "time threshold" do
@@ -68,8 +68,8 @@ class UserTest < ActiveSupport::TestCase
     b.created_at = 2.days.ago
     users(:sarah).badges << b
 
-    assert !users(:sarah).has_acheived?(:elected_president, :within => 1.hour)
-    assert users(:sarah).has_acheived?(:elected_president, :within => 3.days)
+    assert !users(:sarah).has_achieved?(:elected_president, :within => 1.hour)
+    assert users(:sarah).has_achieved?(:elected_president, :within => 3.days)
   end
 
   test "time threshold with multiples" do
@@ -80,8 +80,8 @@ class UserTest < ActiveSupport::TestCase
     b.created_at = 1.day.ago
     2.times { users(:sarah).badges << b }
 
-    assert !users(:sarah).has_acheived?(:elected_president, :within => 1.hour)
-    assert users(:sarah).has_acheived?(:elected_president, :times => 3, :within => 3.days)
-    assert users(:sarah).has_acheived?(:elected_president, :times => 2, :within => 25.hours)
+    assert !users(:sarah).has_achieved?(:elected_president, :within => 1.hour)
+    assert users(:sarah).has_achieved?(:elected_president, :times => 3, :within => 3.days)
+    assert users(:sarah).has_achieved?(:elected_president, :times => 2, :within => 25.hours)
   end
 end

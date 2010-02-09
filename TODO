@@ -1,5 +1,6 @@
 * API design.
   * Figure out how I want to seperate the web site from the API server.
 * Figure out how authentication is going to work for the API.
-* Write a readme.md file.
+* <s>Write a</s> Expand the readme.md file.
 * Write tests for the new documentation stuff.
+* Fix the time interval to friendly formatting in Trinket::Badges::Documention.
