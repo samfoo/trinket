@@ -5,7 +5,7 @@ Working with bug/project trackers is tedious. Trinket is a game that makes it
 fun. 
 
 How does this--what did you call it? widget, doohicky--... trinket thing work?
-==============================================================================
+------------------------------------------------------------------------------
 
 Trinket is simple: 
 
@@ -15,7 +15,7 @@ about all kinds of stuff that has happened before. Sometimes, Trinket thinks
 someone is pretty cool for what they have done and gives them a badge.
 
 What the heck is a badge?
-=========================
+-------------------------
 
 Badges are a cool award that users "win" for doing cool stuff. If you run your
 own Trinket server, you can define your own badges. 
@@ -45,7 +45,7 @@ Or this one is pretty gnarly:
     end
 
 Why do I want badges?
-=====================
+---------------------
 
 Here are some very good and very serious reasons that you want to collect 
 badges:
@@ -55,6 +55,6 @@ badges:
 * Pumpkin pie.
 
 What if I cheat?
-================
+----------------
 
 Trinket works on the honor system. 
