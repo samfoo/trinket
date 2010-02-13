@@ -1,6 +1,6 @@
 class BadgesController < ApplicationController
   def index
-    # TODO: Pagination 
+    @badges = Badge.find(:all)
   end
 
   def show

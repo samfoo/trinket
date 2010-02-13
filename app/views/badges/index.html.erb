@@ -1,0 +1,16 @@
+<% @badges.each do |badge| %>
+  <div class="badge">
+    <div class="badge-image">
+      <%= image_tag(badge.image_url,
+                    :alt => badge.display_name,
+                    :title => badge.display_name) %>
+    </div>
+    <div class="badge">
+      <h2 class="badge-title"><%= badge.display_name %></h2>
+      <% 
+        # TODO: Ellipsis shorten this
+      %>
+      <p class="badge-short-desc"><%= badge.description %></p>
+    </div>
+  </div>
+<% end %>
