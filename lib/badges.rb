@@ -44,7 +44,7 @@ module Trinket
       end
 
       def must_have_achieved(badge, options={})
-        emit "The user must have achieved the #{badge} badge #{times(options)} #{within(options)}".strip
+        emit "The user must have achieved the #{badge.to_s.titleize} badge #{times(options)} #{within(options)}".strip
       end
     end
 
