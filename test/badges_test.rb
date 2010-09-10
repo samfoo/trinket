@@ -1,11 +1,13 @@
-require 'test_helper'
-require 'lib/badges'
+require 'test/unit'
 
-class BadgesTest < ActiveSupport::TestCase
+require 'test_helper'
+require 'badges'
+
+class BadgesTest < Test::Unit::TestCase
   teardown_badge_definitions
 
-  test "hasn't achieved must have achieved constraint" do
-    module Trinket::Badges
+  def test_hasnt_achieved_must_have_achieved_constraint 
+    Trinket::Badges.module_eval do
       badge :winnar_is_you do
         must_have_achieved :elected_president
       end
@@ -18,8 +20,8 @@ class BadgesTest < ActiveSupport::TestCase
     assert user.badges.size == 0
   end
 
-  test "document must have achieved constraint" do
-    module Trinket::Badges
+  def test_document_must_have_achieved_constraint
+    Trinket::Badges.module_eval do
       badge :winnar_is_you do
         must_have_achieved :elected_president
       end
@@ -29,8 +31,8 @@ class BadgesTest < ActiveSupport::TestCase
     assert desc == "The user must have achieved the Elected President badge."
   end
 
-  test "document must have achieved times" do
-    module Trinket::Badges
+  def test_document_must_have_achieved_times
+    Trinket::Badges.module_eval do
       badge :winnar_is_you do
         must_have_achieved :elected_president, :times => 3
       end
@@ -40,8 +42,8 @@ class BadgesTest < ActiveSupport::TestCase
     assert desc == "The user must have achieved the Elected President badge 3 times."
   end
 
-  test "has achieved must have achieved constraint" do
-    module Trinket::Badges
+  def test_has_achieved_must_have_achieved_constraint
+    Trinket::Badges.module_eval do
       badge :winnar_is_you do
         must_have_achieved :elected_president
       end
@@ -55,8 +57,8 @@ class BadgesTest < ActiveSupport::TestCase
     assert user.badges.size == 2
   end
 
-  test "can only be awarded once" do
-    module Trinket::Badges
+  def test_can_only_be_awarded_once
+    Trinket::Badges.module_eval do
       badge :winnar_is_you do
         is_one_time_only
       end
@@ -70,8 +72,8 @@ class BadgesTest < ActiveSupport::TestCase
     assert user.badges.size == 1
   end
 
-  test "document is one time only" do
-    module Trinket::Badges
+  def test_document_is_one_time_only
+    Trinket::Badges.module_eval do
       badge :winnar_is_you do
         is_one_time_only
       end
@@ -81,8 +83,8 @@ class BadgesTest < ActiveSupport::TestCase
     assert desc == "Can only be awarded once."
   end
 
-  test "event must have occurred" do
-    module Trinket::Badges
+  def test_event_must_have_occurred
+    Trinket::Badges.module_eval do
       badge :resolvinator do
         event_must_have_occurred :status, :value => "resolved"
       end
@@ -96,8 +98,8 @@ class BadgesTest < ActiveSupport::TestCase
     assert user.badges.size == 1
   end
 
-  test "document event must have occurred" do
-    module Trinket::Badges
+  def test_document_event_must_have_occurred
+    Trinket::Badges.module_eval do
       badge :resolvinator do 
         event_must_have_occurred :status, :value => "resolved"
       end
@@ -107,8 +109,8 @@ class BadgesTest < ActiveSupport::TestCase
     assert desc == "The user must have performed the status event with the value resolved."
   end
 
-  test "event must have occurred value incorrect" do
-    module Trinket::Badges
+  def test_event_must_have_occurred_value_incorrect
+    Trinket::Badges.module_eval do 
       badge :resolvinator do
         event_must_have_occurred :status, :value => "resolved"
       end
@@ -122,8 +124,8 @@ class BadgesTest < ActiveSupport::TestCase
     assert user.badges.size == 0
   end
 
-  test "event must have occurred, but hasn't" do
-    module Trinket::Badges
+  def test_event_must_have_occurred_but_hasnt
+    Trinket::Badges.module_eval do
       badge :resolvinator do
         event_must_have_occurred :status, :value => "resolved"
       end
