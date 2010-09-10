@@ -1,5 +1,3 @@
-* API design.
-  * Figure out how I want to seperate the web site from the API server.
-* Figure out how authentication is going to work for the API.
+* Move away from rails to a simple API/proof of concept.
 * <s>Write a</s> Expand the readme.md file.
 * Fix the time interval to friendly formatting in Trinket::Badges::Documention.
