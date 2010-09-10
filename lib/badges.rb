@@ -1,3 +1,5 @@
+require 'active_support/core_ext'
+
 module Trinket
   module Badges
     class ShouldNotBeAwardedError < RuntimeError
