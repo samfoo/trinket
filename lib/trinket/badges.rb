@@ -5,6 +5,9 @@ module Trinket
     class ShouldNotBeAwardedError < RuntimeError
     end
 
+    class DefinitionError < RuntimeError
+    end
+
     # This module contains all the dynamically generated badge classes.
     module Rules 
     end
@@ -200,7 +203,7 @@ module Trinket
     # if a player has achieved this badge.
     def self.badge(name, &definition)
       class_name = name.to_s.camelize
-      raise "#{name} badge is already defined." if Rules.const_defined?(class_name)
+      raise DefinitionError.new("#{name} badge is already defined.") if Rules.const_defined?(class_name)
 
       context_klass = Class.new(Context)
       context_klass.class_eval do

@@ -15,6 +15,18 @@ class BadgesTest < Test::Unit::TestCase
     Badge.create(:name => "resolvinator")
   end
 
+  def test_create_duplicate_badge_definition_fails
+    assert_raise Trinket::Badges::DefinitionError do
+      Trinket::Badges.module_eval do
+        badge :epic_lulz do
+        end
+
+        badge :epic_lulz do
+        end
+      end
+    end
+  end
+
   def test_hasnt_achieved_must_have_achieved_constraint 
     Trinket::Badges.module_eval do
       badge :winnar_is_you do
