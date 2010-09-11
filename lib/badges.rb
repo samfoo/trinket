@@ -55,9 +55,9 @@ module Trinket
     # are available to the badge description language.
     #
     # Context wraps the methods that appear within the badge definition in a 
-    # user context. This means that you don't have to try and pass "user" as a
+    # player context. This means that you don't have to try and pass "player" as a
     # stated argument to every method. When context is evaluated for anything
-    # it's instantiated with a user object that's used implicitely.
+    # it's instantiated with a player object that's used implicitely.
     #
     # e.g.
     #
@@ -67,11 +67,11 @@ module Trinket
     # end
     # </tt>
     class Context 
-      attr_accessor :user, :name
+      attr_accessor :player, :name
 
-      def initialize(name, user)
+      def initialize(name, player)
         self.name = name
-        self.user = user
+        self.player = player
       end
 
       # This badge can only be awarded one time. 
@@ -82,7 +82,7 @@ module Trinket
       # A particular event or set of events must have occured. For options see
       # <tt>Badge.has_done?</tt>.
       def event_must_have_occurred(event, options={})
-        if !Badges.has_done?(user, event, options)
+        if !Badges.has_done?(player, event, options)
           raise ShouldNotBeAwardedError.new("The player hasn't performed #{event} => #{options.inspect}.")
         end
       end
@@ -90,7 +90,7 @@ module Trinket
       # A particular badge must have already been achieved. For options see
       # <tt>Badge.has_achieved?</tt>
       def must_have_achieved(badge, options={})
-        if !Badges.has_achieved?(user, badge, options)
+        if !Badges.has_achieved?(player, badge, options)
           raise ShouldNotBeAwardedError.new("The #{badge} => #{options.inspect} badge hasn't been achieved.")
         end
       end
@@ -98,13 +98,13 @@ module Trinket
       # A particular badge must not have already been achieved. For options see
       # <tt>Badge.has_achieved?</tt>
       def must_not_have_achieved(badge, options={})
-        if Badges.has_achieved?(user, badge, options)
+        if Badges.has_achieved?(player, badge, options)
           raise ShouldNotBeAwardedError.new("The #{badge} => #{options.inspect} badge has already been achieved.")
         end
       end
     end
 
-    # Check to see if a user has already achieved one or more of a particular 
+    # Check to see if a player has already achieved one or more of a particular 
     # badge with some constraints.
     #
     # Options:
@@ -112,23 +112,23 @@ module Trinket
     # * <tt>times</tt> - The number of times the badge must have been achieved to count. If the badge has been achieved more times than this, it still counts.
     #
     # Examples:
-    # <tt>has_achieved? :playa # The user has ever achieved the "playa" badge</tt>
-    # <tt>has_achieved? :playa, :times => 10 # The user has achieved the "playa" badge ten or more times</tt>
-    # <tt>has_achieved? :playa, :within => 24.hours # The user has achieved the "playa" badge within the last 24 hours</tt>
-    def self.has_achieved?(user, badge, options={})
+    # <tt>has_achieved? :playa # The player has ever achieved the "playa" badge</tt>
+    # <tt>has_achieved? :playa, :times => 10 # The player has achieved the "playa" badge ten or more times</tt>
+    # <tt>has_achieved? :playa, :within => 24.hours # The player has achieved the "playa" badge within the last 24 hours</tt>
+    def self.has_achieved?(player, badge, options={})
+      ds = player.badges_dataset.filter(:name => badge.to_s)
       if options.has_key?(:within)
-        conditions = ["badges.name = ? and badges_users.created_at >= ?", badge.to_s, options[:within].ago]
-      else
-        conditions = ["badges.name = ?", badge.to_s]
+        ds = ds.filter { created_at >= options[:within].ago }
+        #conditions = ["badges.name = ? and badges_players.created_at >= ?", badge.to_s, options[:within].ago]
       end
 
-      achieved = user.badges.count(:conditions => conditions)
+      achieved = ds.count 
       threshold = options[:times] || 1
 
       return achieved >= threshold
     end
 
-    # Check to see if a user has performed some criteria of events.
+    # Check to see if a player has performed some criteria of events.
     #
     # Options:
     # * <tt>within</tt> - A time (e.g. "24.hours" or "15.minutes") span within which the event must have been earned within from the time of querying to count.
@@ -136,9 +136,9 @@ module Trinket
     # * <tt>value</tt> - The value of the event must match to count. 
     #
     # Examples:
-    # <tt>has_done? :status # The user has changed the status of an issue</tt>
-    # <tt>has_done? :status, :value => "resolved" # The user has changed the status of an issue to be "resolved"</tt>
-    def self.has_done?(user, event, options={})
+    # <tt>has_done? :status # The player has changed the status of an issue</tt>
+    # <tt>has_done? :status, :value => "resolved" # The player has changed the status of an issue to be "resolved"</tt>
+    def self.has_done?(player, event, options={})
       sql = []
       values = []
       if options.has_key?(:within)
@@ -155,22 +155,22 @@ module Trinket
       end
 
       conditions = [sql.join(" and ")] + values
-      achieved = user.events.count(:conditions => conditions)
+      achieved = player.events.count(:conditions => conditions)
       threshold = options[:times] || 1
 
       return achieved >= threshold
     end
 
-    # Award a user any badges that they've qualified for.
-    def self.award(user)
+    # Award a player any badges that they've qualified for.
+    def self.award(player)
       Rules.constants.each do |badge|
-        award_if_qualified(user, badge.underscore)
+        award_if_qualified(player, badge.underscore)
       end
     end
 
-    # Award a user a badge if they're qualified. The badge definition criteria
-    # must be satisfied for the user for them to be qualified.
-    def self.award_if_qualified(user, badge)
+    # Award a player a badge if they're qualified. The badge definition criteria
+    # must be satisfied for the player for them to be qualified.
+    def self.award_if_qualified(player, badge)
       badge = badge.to_s
       class_name = badge.camelize
       begin
@@ -179,16 +179,16 @@ module Trinket
         raise "#{badge} badge is not defined."
       end
 
-      raise ArgumentError.new("You must provide a player to check if a badge should be awarded") if user.nil?
+      raise ArgumentError.new("You must provide a player to check if a badge should be awarded") if player.nil?
 
       # Run the definition and see if this badge should me awarded.
-      definition.new(badge, user).check_should_be_awarded()
+      definition.new(badge, player).check_should_be_awarded()
 
       # If there were no condition errors checking the definition it means that
-      # this user has been awarded this badge.
-      user.add_badge(Badge.first(:name => badge))
+      # this player has been awarded this badge.
+      player.add_badge(Badge.first(:name => badge))
     rescue ShouldNotBeAwardedError => e
-      # If there was a condition error, the user has not met the criteria to be
+      # If there was a condition error, the player has not met the criteria to be
       # awarded this badge.
     end
 
@@ -196,7 +196,7 @@ module Trinket
     # and creates several new classes which each implement some named method
     # that executes that block in their own context. Essentially each new class
     # that's implemented takes the same language, and does something different
-    # with it (generate documentation or determine whether a user has satisfied
+    # with it (generate documentation or determine whether a player has satisfied
     # the badge requirements)
     #
     # e.g.
@@ -211,7 +211,7 @@ module Trinket
     # This creates the new class CaptainWeHaveVisual and binds the block to the
     # instance method "<tt>check_should_be_awarded</tt>". The newly created
     # class implements the methods in the block that are necessary to determine
-    # if a user has achieved this badge.
+    # if a player has achieved this badge.
     def self.badge(name, &definition)
       class_name = name.to_s.camelize
       raise "#{name} badge is already defined." if Rules.const_defined?(class_name)
@@ -224,7 +224,7 @@ module Trinket
           define_method("parse_requirements_in_words", &definition)
         end
 
-        # Turn the badge definition into english for displaying to the user.
+        # Turn the badge definition into english for displaying to the player.
         def self.requirements_in_words
           @@documentation_class.new.to_s
         end

@@ -60,10 +60,10 @@ class BadgesTest < Test::Unit::TestCase
     end
 
     player = Player.first(:name => "sarah")
-    player.add_badge(:name => "elected_president")
+    player.add_badge(Badge.first(:name => "elected_president"))
     Trinket::Badges.award_if_qualified(player, :winnar_is_you)
 
-    assert Badge.first(:name => "winnar_is_you").players.include?(player)
+    assert player.badges.include?(Badge.first(:name => "winnar_is_you"))
     assert player.badges.size == 2
   end
 
