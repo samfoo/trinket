@@ -19,7 +19,7 @@ Sequel.migration do
     create_table(:badges_players) do
       foreign_key :badge_id, :badges
       foreign_key :player_id, :players
-      #Time :created_at, :null => false
+      Time :created_at, :null => false
     end
 
     create_table(:events) do
