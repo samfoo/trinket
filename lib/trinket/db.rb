@@ -3,13 +3,23 @@ require 'sequel'
 module Trinket
   module Database
     def self.connect(uri) 
-      # TODO: Configurinateify this, also, probably shouldn't be relative. 
       const_set("DB", Sequel.sqlite(uri))
       Sequel::Model.db = DB
+      Sequel::Model.plugin :validation_helpers 
+      Sequel::Model.plugin :schema
 
-      # Migrate the database if necessary.
-      Sequel.extension :migration
-      Sequel::Migrator.apply(Trinket::Database::DB, File.join(File.dirname(__FILE__), '../../db/migrations'))
+      models = File.join(File.dirname(__FILE__), 'models')
+      Dir[File.join(models, '*.rb')].each do |model| 
+        require File.join(models, File.basename(model))
+      end
+
+      if !DB.table_exists?(:badges_players)
+        DB.create_table :badges_players do
+          foreign_key :badge_id, :badges, :null => false
+          foreign_key :player_id, :players, :null => false
+          Time :created_at, :null => false
+        end
+      end
     end
   end
 end
