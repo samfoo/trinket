@@ -1,11 +1,9 @@
-require 'test/unit'
+require 'helper'
 
-require 'test_helper'
-
-require 'models/badge'
-require 'models/player'
-require 'models/event'
-require 'badges'
+require 'trinket/models/badge'
+require 'trinket/models/player'
+require 'trinket/models/event'
+require 'trinket/badges'
 
 class BadgesTest < Test::Unit::TestCase
   teardown_badge_definitions
