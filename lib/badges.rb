@@ -119,7 +119,6 @@ module Trinket
       ds = player.badges_dataset.filter(:name => badge.to_s)
       if options.has_key?(:within)
         ds = ds.filter { created_at >= options[:within].ago }
-        #conditions = ["badges.name = ? and badges_players.created_at >= ?", badge.to_s, options[:within].ago]
       end
 
       achieved = ds.count 
@@ -133,32 +132,19 @@ module Trinket
     # Options:
     # * <tt>within</tt> - A time (e.g. "24.hours" or "15.minutes") span within which the event must have been earned within from the time of querying to count.
     # * <tt>times</tt> - The number of times the event must have occurred to count. If the badge has been achieved more times than this, it still counts.
-    # * <tt>value</tt> - The value of the event must match to count. 
     #
     # Examples:
     # <tt>has_done? :status # The player has changed the status of an issue</tt>
-    # <tt>has_done? :status, :value => "resolved" # The player has changed the status of an issue to be "resolved"</tt>
     def self.has_done?(player, event, options={})
-      sql = []
-      values = []
+      ds = player.events_dataset.filter(:name => event.to_s)
       if options.has_key?(:within)
-        sql << "events.name = ? and events.created_at >= ?"
-        values += [event.to_s, options[:within].ago]
-      else
-        sql << "events.name = ?"
-        values << event.to_s
+        ds = ds.filter { created_at >= options[:within].ago }
       end
 
-      if options.has_key?(:value)
-        sql << "events.value = ?"
-        values << options[:value]
-      end
-
-      conditions = [sql.join(" and ")] + values
-      achieved = player.events.count(:conditions => conditions)
+      occurred = ds.count
       threshold = options[:times] || 1
 
-      return achieved >= threshold
+      return occurred >= threshold
     end
 
     # Award a player any badges that they've qualified for.

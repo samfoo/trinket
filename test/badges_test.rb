@@ -4,6 +4,7 @@ require 'test_helper'
 
 require 'models/badge'
 require 'models/player'
+require 'models/event'
 require 'badges'
 
 class BadgesTest < Test::Unit::TestCase
@@ -96,12 +97,12 @@ class BadgesTest < Test::Unit::TestCase
   def test_event_must_have_occurred
     Trinket::Badges.module_eval do
       badge :resolvinator do
-        event_must_have_occurred :status, :value => "resolved"
+        event_must_have_occurred "status:resolved"
       end
     end
 
     player = Player.first(:name => "sarah")
-    Event.create!(:player => player, :name => "status", :value => "resolved")
+    Event.create(:player => player, :name => "status:resolved", :value => 1)
 
     Trinket::Badges.award_if_qualified(player, :resolvinator)
     assert Badge.first(:name => "resolvinator").players.include?(player)
@@ -117,21 +118,6 @@ class BadgesTest < Test::Unit::TestCase
 
     desc = Trinket::Badges::Rules::Resolvinator.requirements_in_words
     assert desc == "The player must have performed the status event with the value resolved."
-  end
-
-  def test_event_must_have_occurred_value_incorrect
-    Trinket::Badges.module_eval do 
-      badge :resolvinator do
-        event_must_have_occurred :status, :value => "resolved"
-      end
-    end
-
-    player = Player.first(:name => "sarah")
-    Event.create!(:player => player, :name => "status")
-
-    Trinket::Badges.award_if_qualified(player, :resolvinator)
-    assert !Badge.first(:name => "resolvinator").players.include?(player)
-    assert player.badges.size == 0
   end
 
   def test_event_must_have_occurred_but_hasnt

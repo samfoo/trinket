@@ -24,12 +24,13 @@ Sequel.migration do
 
     create_table(:events) do
       primary_key :id
-      String :type, :null => false
+      String :name, :null => false
+      Integer :value, :null => false
       Time :created_at, :null => false
 
       foreign_key :player_id, :players
 
-      index :type
+      index :name
       index :player_id
     end
   end
