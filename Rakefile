@@ -1,5 +1,3 @@
-require 'rubygems'
-
 require 'rake/testtask'
 
 PKG_NAME = 'trinket'

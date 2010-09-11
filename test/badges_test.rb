@@ -1,10 +1,20 @@
 require 'test/unit'
 
 require 'test_helper'
+
+require 'models/badge'
+require 'models/player'
 require 'badges'
 
 class BadgesTest < Test::Unit::TestCase
   teardown_badge_definitions
+
+  def setup
+    Player.create(:name => "sarah")
+    Badge.create(:name => "winnar_is_you")
+    Badge.create(:name => "elected_president")
+    Badge.create(:name => "resolvinator")
+  end
 
   def test_hasnt_achieved_must_have_achieved_constraint 
     Trinket::Badges.module_eval do
@@ -13,11 +23,11 @@ class BadgesTest < Test::Unit::TestCase
       end
     end
 
-    user = users(:sarah)
-    Trinket::Badges.award_if_qualified(user, :winnar_is_you)
+    player = Player.first(:name => "sarah")
+    Trinket::Badges.award_if_qualified(player, :winnar_is_you)
 
-    assert !Badge.find_by_name("winnar_is_you").users.include?(user)
-    assert user.badges.size == 0
+    assert !Badge.first(:name => "winnar_is_you").players.include?(player)
+    assert player.badges.size == 0
   end
 
   def test_document_must_have_achieved_constraint
@@ -28,7 +38,7 @@ class BadgesTest < Test::Unit::TestCase
     end
 
     desc = Trinket::Badges::Rules::WinnarIsYou.requirements_in_words
-    assert desc == "The user must have achieved the Elected President badge."
+    assert desc == "The player must have achieved the Elected President badge."
   end
 
   def test_document_must_have_achieved_times
@@ -39,7 +49,7 @@ class BadgesTest < Test::Unit::TestCase
     end
 
     desc = Trinket::Badges::Rules::WinnarIsYou.requirements_in_words
-    assert desc == "The user must have achieved the Elected President badge 3 times."
+    assert desc == "The player must have achieved the Elected President badge 3 times."
   end
 
   def test_has_achieved_must_have_achieved_constraint
@@ -49,12 +59,12 @@ class BadgesTest < Test::Unit::TestCase
       end
     end
 
-    user = users(:sarah)
-    user.badges << Badge.find_by_name("elected_president")
-    Trinket::Badges.award_if_qualified(user, :winnar_is_you)
+    player = Player.first(:name => "sarah")
+    player.add_badge(:name => "elected_president")
+    Trinket::Badges.award_if_qualified(player, :winnar_is_you)
 
-    assert Badge.find_by_name("winnar_is_you").users.include?(user)
-    assert user.badges.size == 2
+    assert Badge.first(:name => "winnar_is_you").players.include?(player)
+    assert player.badges.size == 2
   end
 
   def test_can_only_be_awarded_once
@@ -64,12 +74,12 @@ class BadgesTest < Test::Unit::TestCase
       end
     end
 
-    user = users(:sarah)
-    user.badges << Badge.find_by_name("winnar_is_you")
+    player = Player.first(:name => "sarah")
+    player.add_badge(Badge.first(:name => "winnar_is_you"))
 
-    Trinket::Badges.award_if_qualified(user, :winnar_is_you)
-    assert Badge.find_by_name("winnar_is_you").users.include?(user)
-    assert user.badges.size == 1
+    Trinket::Badges.award_if_qualified(player, :winnar_is_you)
+    assert Badge.first(:name => "winnar_is_you").players.include?(player)
+    assert player.badges.size == 1
   end
 
   def test_document_is_one_time_only
@@ -90,12 +100,12 @@ class BadgesTest < Test::Unit::TestCase
       end
     end
 
-    user = users(:sarah)
-    Event.create!(:user => user, :name => "status", :value => "resolved")
+    player = Player.first(:name => "sarah")
+    Event.create!(:player => player, :name => "status", :value => "resolved")
 
-    Trinket::Badges.award_if_qualified(user, :resolvinator)
-    assert Badge.find_by_name("resolvinator").users.include?(user)
-    assert user.badges.size == 1
+    Trinket::Badges.award_if_qualified(player, :resolvinator)
+    assert Badge.first(:name => "resolvinator").players.include?(player)
+    assert player.badges.size == 1
   end
 
   def test_document_event_must_have_occurred
@@ -106,7 +116,7 @@ class BadgesTest < Test::Unit::TestCase
     end
 
     desc = Trinket::Badges::Rules::Resolvinator.requirements_in_words
-    assert desc == "The user must have performed the status event with the value resolved."
+    assert desc == "The player must have performed the status event with the value resolved."
   end
 
   def test_event_must_have_occurred_value_incorrect
@@ -116,12 +126,12 @@ class BadgesTest < Test::Unit::TestCase
       end
     end
 
-    user = users(:sarah)
-    Event.create!(:user => user, :name => "status")
+    player = Player.first(:name => "sarah")
+    Event.create!(:player => player, :name => "status")
 
-    Trinket::Badges.award_if_qualified(user, :resolvinator)
-    assert !Badge.find_by_name("resolvinator").users.include?(user)
-    assert user.badges.size == 0
+    Trinket::Badges.award_if_qualified(player, :resolvinator)
+    assert !Badge.first(:name => "resolvinator").players.include?(player)
+    assert player.badges.size == 0
   end
 
   def test_event_must_have_occurred_but_hasnt
@@ -131,10 +141,10 @@ class BadgesTest < Test::Unit::TestCase
       end
     end
 
-    user = users(:sarah)
+    player = Player.first(:name => "sarah")
 
-    Trinket::Badges.award_if_qualified(user, :resolvinator)
-    assert !Badge.find_by_name("resolvinator").users.include?(user)
-    assert user.badges.size == 0
+    Trinket::Badges.award_if_qualified(player, :resolvinator)
+    assert !Badge.first(:name => "resolvinator").players.include?(player)
+    assert player.badges.size == 0
   end
 end

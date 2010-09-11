@@ -42,11 +42,11 @@ module Trinket
       end
 
       def event_must_have_occurred(event, options={})
-        emit "The user must have performed the #{event} event #{value(options)} #{times(options)} #{within(options)}".strip
+        emit "The player must have performed the #{event} event #{value(options)} #{times(options)} #{within(options)}".strip
       end
 
       def must_have_achieved(badge, options={})
-        emit "The user must have achieved the #{badge.to_s.titleize} badge #{times(options)} #{within(options)}".strip
+        emit "The player must have achieved the #{badge.to_s.titleize} badge #{times(options)} #{within(options)}".strip
       end
     end
 
@@ -83,7 +83,7 @@ module Trinket
       # <tt>Badge.has_done?</tt>.
       def event_must_have_occurred(event, options={})
         if !Badges.has_done?(user, event, options)
-          raise ShouldNotBeAwardedError.new("The user hasn't performed #{event} => #{options.inspect}.")
+          raise ShouldNotBeAwardedError.new("The player hasn't performed #{event} => #{options.inspect}.")
         end
       end
 
@@ -179,14 +179,14 @@ module Trinket
         raise "#{badge} badge is not defined."
       end
 
-      raise ArgumentError.new("You must provide a user to check if a badge should be awarded") if user.nil?
+      raise ArgumentError.new("You must provide a player to check if a badge should be awarded") if user.nil?
 
       # Run the definition and see if this badge should me awarded.
       definition.new(badge, user).check_should_be_awarded()
 
       # If there were no condition errors checking the definition it means that
       # this user has been awarded this badge.
-      user.badges << Badge.find_by_name(badge) 
+      user.add_badge(Badge.first(:name => badge))
     rescue ShouldNotBeAwardedError => e
       # If there was a condition error, the user has not met the criteria to be
       # awarded this badge.
