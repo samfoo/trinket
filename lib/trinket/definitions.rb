@@ -1,7 +1,5 @@
 require 'trinket/ext'
 
-require 'active_support/core_ext'
-
 module Trinket
   module Definitions 
     class ShouldNotBeAwardedError < RuntimeError
@@ -61,7 +59,7 @@ module Trinket
       end
 
       def must_have_achieved(badge, options={})
-        emit "The player must have achieved the #{badge.to_s.titleize} badge #{times(options)} #{within(options)}".strip
+        emit "The player must have achieved the #{badge.to_s} badge #{times(options)} #{within(options)}".strip
       end
     end
 

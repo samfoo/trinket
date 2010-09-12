@@ -49,7 +49,7 @@ class DefinitionsTest < Test::Unit::TestCase
     end
 
     desc = Trinket::Definitions::Rules::Badge.requirements_in_words
-    assert desc == "The player must have achieved the Elected President badge."
+    assert desc == "The player must have achieved the elected_president badge."
   end
 
   def test_document_must_have_achieved_times
@@ -60,7 +60,7 @@ class DefinitionsTest < Test::Unit::TestCase
     end
 
     desc = Trinket::Definitions::Rules::Badge.requirements_in_words
-    assert desc == "The player must have achieved the Elected President badge 3 times."
+    assert desc == "The player must have achieved the elected_president badge 3 times."
   end
 
   def test_has_achieved_must_have_achieved_constraint
