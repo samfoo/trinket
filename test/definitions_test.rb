@@ -48,7 +48,7 @@ class DefinitionsTest < Test::Unit::TestCase
       end
     end
 
-    desc = Trinket::Definitions::Rules::WinnarIsYou.requirements_in_words
+    desc = Trinket::Definitions::Rules::Badge.requirements_in_words
     assert desc == "The player must have achieved the Elected President badge."
   end
 
@@ -59,7 +59,7 @@ class DefinitionsTest < Test::Unit::TestCase
       end
     end
 
-    desc = Trinket::Definitions::Rules::WinnarIsYou.requirements_in_words
+    desc = Trinket::Definitions::Rules::Badge.requirements_in_words
     assert desc == "The player must have achieved the Elected President badge 3 times."
   end
 
@@ -100,7 +100,7 @@ class DefinitionsTest < Test::Unit::TestCase
       end
     end
 
-    desc = Trinket::Definitions::Rules::WinnarIsYou.requirements_in_words
+    desc = Trinket::Definitions::Rules::Badge.requirements_in_words
     assert desc == "Can only be awarded once."
   end
 
@@ -126,7 +126,7 @@ class DefinitionsTest < Test::Unit::TestCase
       end
     end
 
-    desc = Trinket::Definitions::Rules::Resolvinator.requirements_in_words
+    desc = Trinket::Definitions::Rules::Badge.requirements_in_words
     assert desc == "The player must have performed the status event."
   end
 
@@ -144,22 +144,32 @@ class DefinitionsTest < Test::Unit::TestCase
     assert player.badges.size == 0
   end
 
-  def test_unicode_character_names_at_least_try_to_be_valid
+  def test_name_definitions
     Trinket::Definitions.module_eval do
-      badge "Sam? サームですか...?" do
+      badge "9/11 Changed Everything!" do
+        one_time_only
+      end
+
+      badge "Anata no namae wa nan desuka?" do
         one_time_only
       end
     end
+
+    assert Trinket::Definitions::Rules::NAMES.size == 2
+    assert Trinket::Definitions::Rules.constants.size == 3 # includes the NAMES constant
+    assert !Trinket::Definitions::Rules.const_get("Badge").nil?
+    assert !Trinket::Definitions::Rules.const_get("Badge1").nil?
   end
 
-  def test_crazy_name_fails_somewhat_gracefully
-    assert_raise Trinket::Definitions::DefinitionError do
-      Trinket::Definitions.module_eval do
-        badge "サームですか...?" do
-          one_time_only
-        end
+  def test_crazy_name
+    Trinket::Definitions.module_eval do
+      badge "  サームですか...?" do
+        one_time_only
       end
     end
+
+    assert !Trinket::Definitions::Rules.const_get("Badge").nil?
+    assert !Trinket::Definitions::Rules::NAMES["  サームですか...?"].nil?
   end
 
   def test_badge_name_thats_not_in_the_db_creates_db_record

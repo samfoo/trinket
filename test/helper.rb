@@ -29,5 +29,6 @@ class Test::Unit::TestCase
     Trinket::Definitions::Rules.constants.each do |rule|
       Trinket::Definitions::Rules.class_eval { remove_const(rule) }
     end
+    Trinket::Definitions::Rules.class_eval { const_set("NAMES", {}) }
   end
 end

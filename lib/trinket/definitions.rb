@@ -1,3 +1,5 @@
+require 'trinket/ext'
+
 require 'active_support/core_ext'
 
 module Trinket
@@ -10,6 +12,7 @@ module Trinket
 
     # This module contains all the dynamically generated badge classes.
     module Rules 
+      NAMES = {}
     end
 
     # Documentation is a base class that gets extended by automatically 
@@ -148,8 +151,8 @@ module Trinket
 
     # Award a player any badges that they've qualified for.
     def self.award(player)
-      Rules.constants.each do |badge|
-        award_if_qualified(player, badge.underscore)
+      Rules::NAMES.keys do |badge|
+        award_if_qualified(player, badge)
       end
     end
 
@@ -157,11 +160,9 @@ module Trinket
     # must be satisfied for the player for them to be qualified.
     def self.award_if_qualified(player, badge)
       badge = badge.to_s
-      class_name = badge.gsub(/[^\w\d]/, "_").camelize
-      begin
-        definition = Rules.const_get(class_name)
-      rescue NameError
-        raise "#{badge} badge is not defined or is invalid."
+      definition = Rules::NAMES[badge]
+      if definition.nil?
+        raise DefinitionError.new("#{badge} badge is not defined or is invalid.")
       end
 
       raise ArgumentError.new("You must provide a player to check if a badge should be awarded") if player.nil?
@@ -198,13 +199,12 @@ module Trinket
     # class implements the methods in the block that are necessary to determine
     # if a player has achieved this badge.
     def self.badge(name, &definition)
-      class_name = name.to_s.gsub(/[^\w\d]/, "_").camelize
-      begin
-        raise DefinitionError.new("#{name} badge is already defined.") if Rules.const_defined?(class_name)
-      rescue NameError
-        raise DefinitionError.new("#{name} is an invalid name for a badge. Badges must start with a letter (hopefully to be fixed soon).")
-      end
+      # Get the existing class names and figure out the new name.
+      class_name = "Badge".uniquify(Rules.constants)
+      raise DefinitionError.new("#{name} badge is already defined.") if Rules::NAMES.has_key?(name.to_s)
 
+      # TODO: Put this in a transaction so that if any of the definition
+      # fails, this doesn't get left behind.
       if Badge.first(:name => name.to_s).nil?
         # If this badge doesn't yet exist in the datastore, we should created
         # it there.
@@ -227,7 +227,7 @@ module Trinket
         define_method("check_should_be_awarded", &definition)
       end
       Rules.const_set(class_name, context_klass)
+      Rules::NAMES[name.to_s] = Rules.const_get(class_name)
     end
-
   end
 end
