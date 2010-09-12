@@ -26,8 +26,8 @@ class Test::Unit::TestCase
 
   def teardown_with_remove_badge_definitions
     # Clear out all of the rules that were created after every test.
-    Trinket::Badges::Rules.constants.each do |rule|
-      Trinket::Badges::Rules.class_eval { remove_const(rule) }
+    Trinket::Definitions::Rules.constants.each do |rule|
+      Trinket::Definitions::Rules.class_eval { remove_const(rule) }
     end
   end
 end

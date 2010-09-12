@@ -1,7 +1,7 @@
 require 'active_support/core_ext'
 
 module Trinket
-  module Badges
+  module Definitions 
     class ShouldNotBeAwardedError < RuntimeError
     end
 
@@ -81,7 +81,7 @@ module Trinket
       # A particular event or set of events must have occured. For options see
       # <tt>Badge.has_done?</tt>.
       def event_must_have_occurred(event, options={})
-        if !Badges.has_done?(player, event, options)
+        if !Definitions.has_done?(player, event, options)
           raise ShouldNotBeAwardedError.new("The player hasn't performed #{event} => #{options.inspect}.")
         end
       end
@@ -89,7 +89,7 @@ module Trinket
       # A particular badge must have already been achieved. For options see
       # <tt>Badge.has_achieved?</tt>
       def must_have_achieved(badge, options={})
-        if !Badges.has_achieved?(player, badge, options)
+        if !Definitions.has_achieved?(player, badge, options)
           raise ShouldNotBeAwardedError.new("The #{badge} => #{options.inspect} badge hasn't been achieved.")
         end
       end
@@ -97,7 +97,7 @@ module Trinket
       # A particular badge must not have already been achieved. For options see
       # <tt>Badge.has_achieved?</tt>
       def must_not_have_achieved(badge, options={})
-        if Badges.has_achieved?(player, badge, options)
+        if Definitions.has_achieved?(player, badge, options)
           raise ShouldNotBeAwardedError.new("The #{badge} => #{options.inspect} badge has already been achieved.")
         end
       end
