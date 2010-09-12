@@ -1,5 +1,3 @@
-require 'trollop'
-
-opts = Trollop::options do
-end
-
+require 'trinket/db'
+require 'trinket/definitions'
+require 'trinket/ext'
