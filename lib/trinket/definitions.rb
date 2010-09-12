@@ -15,6 +15,19 @@ module Trinket
       NAMES = {}
     end
 
+    class Validation
+      SUPPORTED = [
+        :is_one_time_only, 
+        :event_must_have_occurred,
+        :must_have_achieved,
+        :must_not_have_achieved
+      ]
+
+      def method_missing(sym, *args, &block)
+        raise DefinitionError.new("Invalid method #{sym} for badge definition.") if !SUPPORTED.include?(sym)
+      end
+    end
+
     # Documentation is a base class that gets extended by automatically 
     # generated badge classes. It generates a human readable description of the
     # requirements to achieve each badge.
@@ -151,9 +164,12 @@ module Trinket
 
     # Award a player any badges that they've qualified for.
     def self.award(player)
-      Rules::NAMES.keys do |badge|
-        award_if_qualified(player, badge)
+      awards = []
+      Rules::NAMES.keys.each do |badge|
+        awards << award_if_qualified(player, badge)
       end
+
+      return awards.compact
     end
 
     # Award a player a badge if they're qualified. The badge definition criteria
@@ -173,9 +189,12 @@ module Trinket
       # If there were no condition errors checking the definition it means that
       # this player has been awarded this badge.
       player.add_badge(Badge.first(:name => badge))
+
+      return badge
     rescue ShouldNotBeAwardedError => e
       # If there was a condition error, the player has not met the criteria to be
       # awarded this badge.
+      return nil
     end
 
     # This is the heart of the badge defintion DSL. Calling badge takes a block
@@ -203,13 +222,11 @@ module Trinket
       class_name = "Badge".uniquify(Rules.constants)
       raise DefinitionError.new("#{name} badge is already defined.") if Rules::NAMES.has_key?(name.to_s)
 
-      # TODO: Put this in a transaction so that if any of the definition
-      # fails, this doesn't get left behind.
-      if Badge.first(:name => name.to_s).nil?
-        # If this badge doesn't yet exist in the datastore, we should created
-        # it there.
-        Badge.create(:name => name.to_s)
+      validation_klass = Class.new(Validation)
+      validation_klass.class_eval do
+        define_method("validate", &definition)
       end
+      validation_klass.new.validate()
 
       context_klass = Class.new(Context)
       context_klass.class_eval do
@@ -228,6 +245,12 @@ module Trinket
       end
       Rules.const_set(class_name, context_klass)
       Rules::NAMES[name.to_s] = Rules.const_get(class_name)
+
+      if Badge.first(:name => name.to_s).nil?
+        # If this badge doesn't yet exist in the datastore, we should created
+        # it there.
+        Badge.create(:name => name.to_s)
+      end
     end
   end
 end

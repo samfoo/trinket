@@ -147,11 +147,11 @@ class DefinitionsTest < Test::Unit::TestCase
   def test_name_definitions
     Trinket::Definitions.module_eval do
       badge "9/11 Changed Everything!" do
-        one_time_only
+        is_one_time_only
       end
 
       badge "Anata no namae wa nan desuka?" do
-        one_time_only
+        is_one_time_only
       end
     end
 
@@ -164,7 +164,7 @@ class DefinitionsTest < Test::Unit::TestCase
   def test_crazy_name
     Trinket::Definitions.module_eval do
       badge "  サームですか...?" do
-        one_time_only
+        is_one_time_only
       end
     end
 
@@ -179,5 +179,64 @@ class DefinitionsTest < Test::Unit::TestCase
         event_must_have_occurred :subspace_anomoly
       end
     end
+  end
+
+  def test_invalid_definition_raises_error
+    assert_raise Trinket::Definitions::DefinitionError do
+      Trinket::Definitions.module_eval do
+        badge "<< Red Alert! >>" do
+          not_a_method_whoooooosh! "test"
+        end
+      end
+    end
+  end
+
+  def test_invalid_definition_doesnt_create_non_existant_badge
+    assert_raise Trinket::Definitions::DefinitionError do
+      Trinket::Definitions.module_eval do
+        badge "<< Red Alert! >>" do
+          not_a_method_whoooooosh! "test"
+        end
+      end
+    end
+
+    assert Badge.first(:name => "<< Red Alert! >>").nil?
+  end
+
+  def test_awarding_only_returns_badges_that_were_won
+    Trinket::Definitions.module_eval do
+      badge "Hacked the Gibson" do
+        is_one_time_only
+      end
+
+      badge "Dr. No" do
+        must_have_achieved "who cares"
+      end
+    end
+
+    player = Player.first(:name => "sarah")
+    badges_awarded = Trinket::Definitions.award(player)
+
+    assert badges_awarded.include?("Hacked the Gibson")
+    assert badges_awarded.size == 1 
+  end
+
+  def test_awarding_returns_badges
+    Trinket::Definitions.module_eval do
+      badge "Hacked the Gibson" do
+        is_one_time_only
+      end
+
+      badge "Dr. No" do
+        is_one_time_only
+      end
+    end
+
+    player = Player.first(:name => "sarah")
+    badges_awarded = Trinket::Definitions.award(player)
+
+    assert badges_awarded.include?("Hacked the Gibson")
+    assert badges_awarded.include?("Dr. No")
+    assert badges_awarded.size == 2
   end
 end
