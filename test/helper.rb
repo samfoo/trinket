@@ -1,8 +1,6 @@
 require 'test/unit'
 require 'trinket/db'
 
-Trinket::Database.connect(':memory:')
-
 class Test::Unit::TestCase
   alias run_orig run
   def run(result, &block)
