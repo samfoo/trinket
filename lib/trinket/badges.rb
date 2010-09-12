@@ -31,10 +31,6 @@ module Trinket
         emit "Can only be awarded once"
       end
 
-      def value(options)
-        options.has_key?(:value) ? "with the value #{options[:value]}" : ""
-      end
-
       def times(options)
         options.has_key?(:times) ? "#{options[:times]} times" : ""
       end
@@ -45,7 +41,7 @@ module Trinket
       end
 
       def event_must_have_occurred(event, options={})
-        emit "The player must have performed the #{event} event #{value(options)} #{times(options)} #{within(options)}".strip
+        emit "The player must have performed the #{event} event #{times(options)} #{within(options)}".strip
       end
 
       def must_have_achieved(badge, options={})
@@ -161,11 +157,11 @@ module Trinket
     # must be satisfied for the player for them to be qualified.
     def self.award_if_qualified(player, badge)
       badge = badge.to_s
-      class_name = badge.camelize
+      class_name = badge.gsub(/[^\w\d]/, "_").camelize
       begin
         definition = Rules.const_get(class_name)
       rescue NameError
-        raise "#{badge} badge is not defined."
+        raise "#{badge} badge is not defined or is invalid."
       end
 
       raise ArgumentError.new("You must provide a player to check if a badge should be awarded") if player.nil?
@@ -202,8 +198,18 @@ module Trinket
     # class implements the methods in the block that are necessary to determine
     # if a player has achieved this badge.
     def self.badge(name, &definition)
-      class_name = name.to_s.camelize
-      raise DefinitionError.new("#{name} badge is already defined.") if Rules.const_defined?(class_name)
+      class_name = name.to_s.gsub(/[^\w\d]/, "_").camelize
+      begin
+        raise DefinitionError.new("#{name} badge is already defined.") if Rules.const_defined?(class_name)
+      rescue NameError
+        raise DefinitionError.new("#{name} is an invalid name for a badge. Badges must start with a letter (hopefully to be fixed soon).")
+      end
+
+      if Badge.first(:name => name.to_s).nil?
+        # If this badge doesn't yet exist in the datastore, we should created
+        # it there.
+        Badge.create(:name => name.to_s)
+      end
 
       context_klass = Class.new(Context)
       context_klass.class_eval do

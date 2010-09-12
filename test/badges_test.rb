@@ -122,18 +122,18 @@ class BadgesTest < Test::Unit::TestCase
   def test_document_event_must_have_occurred
     Trinket::Badges.module_eval do
       badge :resolvinator do 
-        event_must_have_occurred :status, :value => "resolved"
+        event_must_have_occurred :status
       end
     end
 
     desc = Trinket::Badges::Rules::Resolvinator.requirements_in_words
-    assert desc == "The player must have performed the status event with the value resolved."
+    assert desc == "The player must have performed the status event."
   end
 
   def test_event_must_have_occurred_but_hasnt
     Trinket::Badges.module_eval do
       badge :resolvinator do
-        event_must_have_occurred :status, :value => "resolved"
+        event_must_have_occurred :status
       end
     end
 
@@ -142,5 +142,32 @@ class BadgesTest < Test::Unit::TestCase
     Trinket::Badges.award_if_qualified(player, :resolvinator)
     assert !Badge.first(:name => "resolvinator").players.include?(player)
     assert player.badges.size == 0
+  end
+
+  def test_unicode_character_names_at_least_try_to_be_valid
+    Trinket::Badges.module_eval do
+      badge "Sam? サームですか...?" do
+        one_time_only
+      end
+    end
+  end
+
+  def test_crazy_name_fails_somewhat_gracefully
+    assert_raise Trinket::Badges::DefinitionError do
+      Trinket::Badges.module_eval do
+        badge "サームですか...?" do
+          one_time_only
+        end
+      end
+    end
+  end
+
+  def test_badge_name_thats_not_in_the_db_creates_db_record
+    assert Badge.first(:name => "Polarize the viewscreen!").nil?
+    Trinket::Badges.module_eval do
+      badge "Polarize the viewscreen!" do
+        event_must_have_occurred :subspace_anomoly
+      end
+    end
   end
 end
