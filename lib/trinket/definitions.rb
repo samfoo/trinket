@@ -1,5 +1,7 @@
 require 'trinket/ext'
 
+require 'active_support/all'
+
 module Trinket
   module Definitions 
     class ShouldNotBeAwardedError < RuntimeError

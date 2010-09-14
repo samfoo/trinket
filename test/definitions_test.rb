@@ -3,7 +3,12 @@ require 'helper'
 require 'trinket/models/badge'
 require 'trinket/models/player'
 require 'trinket/models/event'
-require 'trinket/Definitions'
+require 'trinket/definitions'
+
+require 'timecop'
+
+require 'active_support/core_ext'
+require 'active_support/duration'
 
 class DefinitionsTest < Test::Unit::TestCase
   teardown_badge_definitions
@@ -25,6 +30,39 @@ class DefinitionsTest < Test::Unit::TestCase
         end
       end
     end
+  end
+
+  def test_within_invalid_doesnt_award
+    Trinket::Definitions.module_eval do
+      badge "Se habla español" do
+        must_have_achieved "Spanish 101", :within => 1.day
+      end
+    end
+
+    player = Player.first(:name => "sarah")
+    Badge.create(:name => "Spanish 101")
+    player.add_badge(Badge.first(:name => "Spanish 101"))
+    
+    Timecop.freeze(Date.today + 2.days) do
+      Trinket::Definitions.award_if_qualified(player, "Se habla español")
+      assert !Badge.first(:name => "Se habla español").players.include?(player)
+      assert player.badges.size == 1 
+    end
+  end
+
+  def test_within_valid_awards
+    Trinket::Definitions.module_eval do
+      badge "Panic" do
+        must_have_achieved :elected_president, :within => 1.day
+      end
+    end
+
+    sarah_palin = Player.first(:name => "sarah")
+    sarah_palin.add_badge(Badge.first(:name => "elected_president"))
+
+    Trinket::Definitions.award_if_qualified(sarah_palin, "Panic")
+    assert Badge.first(:name => "Panic").players.include?(sarah_palin)
+    assert sarah_palin.badges.size == 2
   end
 
   def test_hasnt_achieved_must_have_achieved_constraint 
